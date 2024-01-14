@@ -13,7 +13,6 @@ var dbFilePath = "/tmp/gitcd.db"
 var isModified = false
 
 type Project struct {
-	Name        string
 	Path        string
 	CallCounter int
 }
@@ -23,17 +22,12 @@ func (project *Project) UpdateCounter() {
 	SaveProject(*project)
 }
 
-func (project Project) Display() {
-	fmt.Printf("Name: %v Path:%v Called: %v\n", project.Name, project.Path, project.CallCounter)
-}
-
 func (project *Project) saveString() string {
-	return fmt.Sprintf("%v;%v;%v", project.Name, project.Path, project.CallCounter)
+	return fmt.Sprintf("%v;%v", project.Path, project.CallCounter)
 }
 
-func AddProjectFromDb(name, path string, callCount int) *Project {
+func AddProjectFromDb(path string, callCount int) *Project {
 	project := Project{
-		Name:        name,
 		Path:        path,
 		CallCounter: callCount,
 	}
@@ -50,7 +44,6 @@ func AddProject(name, path string, callCount int) *Project {
 	}
 
 	project = Project{
-		Name:        name,
 		Path:        path,
 		CallCounter: callCount,
 	}
@@ -93,12 +86,12 @@ func readDatabase() {
 	}
 	for _, projectText := range lines {
 		split := strings.Split(projectText, ";")
-		i, _ := strconv.ParseInt(split[2], 10, 0)
+		i, _ := strconv.ParseInt(split[1], 10, 0)
 		callCount := int(i)
 		if split[1] == "" {
 			continue
 		}
-		AddProjectFromDb(split[0], split[1], callCount)
+		AddProjectFromDb(split[0], callCount)
 	}
 }
 

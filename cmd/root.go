@@ -31,7 +31,6 @@ to quickly create a Cobra application.`,
 		}
 
 		if len(args) == 1 {
-
 			matches := repository.GetProjectContaining(args[0])
 
 			if len(matches) == 1 {
@@ -52,9 +51,9 @@ to quickly create a Cobra application.`,
 
 			fmt.Print("Pick a project: ")
 			var choice string
-			fmt.Scanln(&choice)
-			choice = strings.ReplaceAll(choice, "\n", "")
-			choice = strings.ReplaceAll(choice, "\r", "")
+			fmt.Scan(&choice)
+			//choice = strings.ReplaceAll(choice, "\n", "")
+			//choice = strings.ReplaceAll(choice, "\r", "")
 
 			convertedChoice, err := strconv.ParseInt(choice, 10, 0)
 
