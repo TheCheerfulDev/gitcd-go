@@ -14,20 +14,24 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "gitcd",
+	Use:   "gitcd [git repo]",
 	Args:  cobra.MaximumNArgs(1),
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "",
+	Long:  `GitCD is a CLI tool that lets you easily index and navigate to git projects.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		scanFlagUsed, _ := cmd.Flags().GetBool("scan")
 		if scanFlagUsed {
-			walkDirectoryTree()
+			handleScanFlag()
 			return
+		}
+		cleanFlagUsed, _ := cmd.Flags().GetBool("clean")
+		if cleanFlagUsed {
+			handleCleanFlag()
+			return
+		}
+
+		if len(args) == 0 {
+
 		}
 
 		if len(args) == 1 {
@@ -78,21 +82,26 @@ func generateCdScript(path string) []byte {
 cd %v`, path))
 }
 
-func walkDirectoryTree() {
+func handleScanFlag() {
 	filepath.WalkDir("/Users/mark/dev", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && d.Name() == ".git" {
 			parentDir := strings.Replace(path, "/.git", "", 1)
-			//fmt.Println("Found .git directory in: ", parentDir)
-			split := strings.Split(parentDir, "/")
-			//fmt.Println(split[len(split)-1])
-			repository.AddProject(split[len(split)-1], parentDir, 0)
+			repository.AddProject(parentDir, 0)
 		}
 		return nil
 	})
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+func handleCleanFlag() {
+	for _, path := range repository.GetAllProjects() {
+		// TODO check if path still exists
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			repository.RemoveProject(path)
+			fmt.Println("Removed:", path)
+		}
+	}
+}
+
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -101,13 +110,6 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitcd.yaml)")
-
-	// Cobra also supports local flags, which will only gitcd-go-runner.sh
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("scan", "s", false, "Scan for git projects in $GITCD_PROJECT_HOME")
+	rootCmd.Flags().BoolP("scan", "", false, "Scan for git projects in $GITCD_PROJECT_HOME")
+	rootCmd.Flags().BoolP("clean", "", false, "Remove all projects that no longer exist from GITCD")
 }

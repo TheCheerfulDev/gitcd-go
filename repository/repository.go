@@ -36,7 +36,7 @@ func AddProjectFromDb(path string, callCount int) *Project {
 	return &project
 }
 
-func AddProject(name, path string, callCount int) *Project {
+func AddProject(path string, callCount int) *Project {
 	project, exists := database[path]
 
 	if exists {
@@ -51,6 +51,24 @@ func AddProject(name, path string, callCount int) *Project {
 	database[path] = project
 	isModified = true
 	return &project
+}
+
+func GetAllProjects() []string {
+	//result := make([]string, 0)
+	result := make([]string, len(database))
+
+	index := 0
+	for key := range database {
+		result[index] = key
+		index++
+	}
+
+	return result
+}
+
+func RemoveProject(key string) {
+	delete(database, key)
+	isModified = true
 }
 
 func GetProjectContaining(input string) []string {
@@ -98,7 +116,11 @@ func readDatabase() {
 func Init() {
 	if _, err := os.Stat(dbFilePath); os.IsNotExist(err) {
 		create, _ := os.Create(dbFilePath)
-		create.Close()
+		err := create.Close()
+		if err != nil {
+			fmt.Println("Something went wrong while creating the gitcd database file: ", err)
+			os.Exit(1)
+		}
 	}
 	readDatabase()
 }
