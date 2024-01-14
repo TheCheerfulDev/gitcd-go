@@ -52,8 +52,6 @@ to quickly create a Cobra application.`,
 			fmt.Print("Pick a project: ")
 			var choice string
 			fmt.Scan(&choice)
-			//choice = strings.ReplaceAll(choice, "\n", "")
-			//choice = strings.ReplaceAll(choice, "\r", "")
 
 			convertedChoice, err := strconv.ParseInt(choice, 10, 0)
 
