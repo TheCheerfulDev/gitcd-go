@@ -9,6 +9,7 @@ permissions:
 jobs:
   release-linux-amd64:
     name: release linux/amd64
+    needs: [ create_release ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,3 +19,32 @@ jobs:
           goos: linux
           goarch: amd64
           extra_files: gitcd-go-runner.sh
+  release-darwin-arm64:
+    name: release macos/arm64
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go 1.21.x
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.x'
+      - name: Prepare Repo
+        run: go mod download
+      - name: Build Repo
+        run: go build .
+      - name: Compress action step
+        uses: a7ul/tar-action@v1.1.0
+        id: compress
+        with:
+          command: c
+          cwd: ./test
+          files: |
+            gitcd-go
+            gitcd-go-runner.sh
+          outPath: gitcd-go-${{ needs.create_release.outputs.id }}.tar.gz
+      - name: github-action-publish-binaries
+        uses: skx/github-action-publish-binaries@release-2.0
+        with:
+          args: '*.tar.gz'
+          releaseId: ${{ needs.create_release.outputs.id }}
+
