@@ -9,7 +9,7 @@ permissions:
 jobs:
   release-macos-arm:
     name: release-macos-arm
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1.42
