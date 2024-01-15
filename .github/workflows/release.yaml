@@ -41,7 +41,7 @@ jobs:
           files: |
             gitcd-go
             gitcd-go-runner.sh
-          outPath: gitcd-go-${{ needs.create_release.outputs.id }}.tar.gz
+          outPath: gitcd-go-macos-arm64-${{ needs.create_release.outputs.id }}.tar.gz
       - name: github-action-publish-binaries
         uses: skx/github-action-publish-binaries@release-2.0
         with:
