@@ -3,6 +3,10 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+  pull-requests: read
+
 jobs:
   release-on-tag-push:
     runs-on: ubuntu-latest
