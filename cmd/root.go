@@ -21,11 +21,26 @@ var rootCmd = &cobra.Command{
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		resetFlagUsed, _ := cmd.Flags().GetBool("reset")
+		if resetFlagUsed {
+			// wipe database
+			repository.ResetDatabase()
+			handleScanFlag()
+			return
+		}
+
 		scanFlagUsed, _ := cmd.Flags().GetBool("scan")
 		if scanFlagUsed {
 			handleScanFlag()
 			return
 		}
+
+		// check if db has any record
+		if len(repository.GetAllProjects()) == 0 {
+			fmt.Println("Your database appears to be empty. Run gitcd with the --scan flag to index your git projects.")
+			os.Exit(1)
+		}
+
 		cleanFlagUsed, _ := cmd.Flags().GetBool("clean")
 		if cleanFlagUsed {
 			handleCleanFlag()
@@ -33,13 +48,17 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 		}
 
 		if len(args) == 0 {
-			repository.GiveTopTen()
 			handleMultipleMatches(repository.GiveTopTen())
 			return
 		}
 
 		if len(args) == 1 {
 			matches := repository.GetProjectContaining(args[0])
+			if len(matches) == 0 {
+				fmt.Println("No projects found.")
+				os.Exit(0)
+			}
+
 			if len(matches) == 1 {
 				handleSingleMatch(matches[0])
 				return
@@ -83,15 +102,7 @@ func handleMultipleMatches(matches []string) {
 		return
 	}
 
-	err = os.WriteFile(config.GetDirChangerPath(), generateCdScript(matches[convertedChoice-1]), 0755)
-	if err != nil {
-		fmt.Println("Something went wrong while preparing to change directory:", err)
-		_ = os.Remove(config.GetDirChangerPath())
-		os.Exit(1)
-	}
-	project := repository.GetProject(matches[convertedChoice-1])
-	project.UpdateCounter()
-	fmt.Println("Changing directory to:", matches[convertedChoice-1])
+	handleSingleMatch(matches[convertedChoice-1])
 }
 
 func generateCdScript(path string) []byte {
@@ -132,5 +143,6 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().BoolP("scan", "", false, "Scan for git projects in $GITCD_PROJECT_HOME")
-	rootCmd.Flags().BoolP("clean", "", false, "Remove all projects that no longer exist from GITCD")
+	rootCmd.Flags().BoolP("clean", "", false, "Remove all projects that no longer exist")
+	rootCmd.Flags().BoolP("reset", "", false, "Resets the database and scans for git project in $GITCD_PROJECT_HOME")
 }

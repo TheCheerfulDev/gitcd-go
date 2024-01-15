@@ -14,6 +14,13 @@ var database = map[string]Project{}
 var dbFilePath string
 var isModified = false
 
+var countSorter = func(c1, c2 *Project) bool {
+	return c1.CallCounter > c2.CallCounter
+}
+var pathSorter = func(c1, c2 *Project) bool {
+	return c1.Path < c2.Path
+}
+
 type Project struct {
 	Path        string
 	CallCounter int
@@ -74,12 +81,20 @@ func RemoveProject(key string) {
 }
 
 func GetProjectContaining(input string) []string {
+	projects := make([]Project, 0)
+	for key, project := range database {
+		if strings.Contains(key, input) {
+			projects = append(projects, project)
+		}
+	}
+
+	// Simple use: Sort by countSorter.
+	OrderedBy(countSorter, pathSorter).Sort(projects)
+
 	result := make([]string, 0)
 
-	for key := range database {
-		if strings.Contains(key, input) {
-			result = append(result, key)
-		}
+	for _, value := range projects {
+		result = append(result, value.Path)
 	}
 	return result
 }
@@ -105,6 +120,12 @@ func readDatabase() {
 		lines = append(lines, scanner.Text())
 	}
 	for _, projectText := range lines {
+
+		if projectText == "" {
+			//fmt.Println("The database appears to be empty. Run gitcd with the --scan flag to index your git projects.")
+			return
+		}
+
 		split := strings.Split(projectText, ";")
 		i, _ := strconv.ParseInt(split[1], 10, 0)
 		callCount := int(i)
@@ -208,22 +229,24 @@ func GiveTopTen() []string {
 		projects = append(projects, project)
 	}
 
-	// Closures that order the Change structure.
-	count := func(c1, c2 *Project) bool {
-		return c1.CallCounter > c2.CallCounter
-	}
-	path := func(c1, c2 *Project) bool {
-		return c1.Path < c2.Path
-	}
+	// Simple use: Sort by countSorter.
+	OrderedBy(countSorter, pathSorter).Sort(projects)
 
-	// Simple use: Sort by count.
-	OrderedBy(count, path).Sort(projects)
+	maxSize := 10
 
-	topTenProjects := make([]string, 10)
-	for i, project := range projects[:10] {
+	if len(projects) < maxSize {
+		maxSize = len(projects)
+	}
+	topTenProjects := make([]string, maxSize)
+
+	for i, project := range projects[:maxSize] {
 		topTenProjects[i] = project.Path
 	}
 
 	return topTenProjects
 
+}
+
+func ResetDatabase() {
+	database = map[string]Project{}
 }
