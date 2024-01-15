@@ -1,12 +1,22 @@
 on:
-  release:
-    types: [ created, published ]
+  push:
+    tags:
+      - '*'
 
 permissions:
   contents: write
-  packages: write
+  pull-requests: read
 
 jobs:
+  release-on-tag-push:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: rymndhng/release-on-push-action@master
+        with:
+          bump_version_scheme: minor
+          tag_prefix: ""
   release-linux-amd64:
     name: Release Go Binary
     runs-on: ubuntu-latest
@@ -22,4 +32,3 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           extra_files: gitcd-go-runner.sh LICENSE
-
