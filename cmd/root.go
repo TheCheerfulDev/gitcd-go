@@ -35,7 +35,6 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 			return
 		}
 
-		// check if db has any record
 		if len(repository.GetAllProjects()) == 0 {
 			fmt.Println("Your database appears to be empty. Run gitcd with the --scan flag to index your git projects.")
 			os.Exit(1)

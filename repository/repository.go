@@ -95,7 +95,6 @@ func GetProjectsRegex(input string) []string {
 		}
 	}
 
-	// Simple use: Sort by countSorter.
 	OrderedBy(countSorter, pathSorter).Sort(projects)
 
 	result := make([]string, 0)
@@ -129,7 +128,6 @@ func readDatabase() {
 	for _, projectText := range lines {
 
 		if projectText == "" {
-			//fmt.Println("The database appears to be empty. Run gitcd with the --scan flag to index your git projects.")
 			return
 		}
 
@@ -203,12 +201,6 @@ func (ms *MultiSorter) Swap(i, j int) {
 	ms.projects[i], ms.projects[j] = ms.projects[j], ms.projects[i]
 }
 
-// Less is part of sort.Interface. It is implemented by looping along the
-// less functions until it finds a comparison that discriminates between
-// the two items (one is less than the other). Note that it can call the
-// less functions twice per call. We could change the functions to return
-// -1, 0, 1 and reduce the number of calls for greater efficiency: an
-// exercise for the reader.
 func (ms *MultiSorter) Less(i, j int) bool {
 	p, q := &ms.projects[i], &ms.projects[j]
 	// Try all but the last comparison.
@@ -223,10 +215,7 @@ func (ms *MultiSorter) Less(i, j int) bool {
 			// p > q, so we have a decision.
 			return false
 		}
-		// p == q; try the next comparison.
 	}
-	// All comparisons to here said "equal", so just return whatever
-	// the final comparison reports.
 	return ms.less[k](p, q)
 }
 
@@ -236,14 +225,13 @@ func GiveTopTen() []string {
 		projects = append(projects, project)
 	}
 
-	// Simple use: Sort by countSorter.
 	OrderedBy(countSorter, pathSorter).Sort(projects)
-
 	maxSize := 10
 
 	if len(projects) < maxSize {
 		maxSize = len(projects)
 	}
+
 	topTenProjects := make([]string, maxSize)
 
 	for i, project := range projects[:maxSize] {
