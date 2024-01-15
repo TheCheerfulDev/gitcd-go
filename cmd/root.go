@@ -53,7 +53,8 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 		}
 
 		if len(args) == 1 {
-			matches := repository.GetProjectContaining(args[0])
+			//matches := repository.GetProjectsContaining(args[0])
+			matches := repository.GetProjectsRegex(args[0])
 			if len(matches) == 0 {
 				fmt.Println("No projects found.")
 				os.Exit(0)

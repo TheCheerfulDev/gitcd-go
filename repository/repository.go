@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/thecheerfuldev/gitcd-go/config"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -80,10 +81,16 @@ func RemoveProject(key string) {
 	isModified = true
 }
 
-func GetProjectContaining(input string) []string {
+func GetProjectsRegex(input string) []string {
 	projects := make([]Project, 0)
+	compile, err := regexp.Compile(input)
+	if err != nil {
+		fmt.Println("Invalid regular expression.")
+		os.Exit(1)
+	}
+
 	for key, project := range database {
-		if strings.Contains(key, input) {
+		if compile.MatchString(key) {
 			projects = append(projects, project)
 		}
 	}
