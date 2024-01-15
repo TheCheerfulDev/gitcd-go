@@ -3,7 +3,7 @@ package repository
 import (
 	"bufio"
 	"fmt"
-	"github.com/thecheerfuldev/gitcd/config"
+	"github.com/thecheerfuldev/gitcd-go/config"
 	"os"
 	"sort"
 	"strconv"

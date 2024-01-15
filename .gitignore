@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-gitcd
+gitcd-go
 
 # Test binary, built with `go test -c`
 *.test

@@ -1,0 +1,20 @@
+on:
+  release:
+    types: [ created ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release-macos-arm:
+    name: release-macos-arm
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.42
+        with:
+          github_token: ${{ secrets.WORKFLOW_TOKEN }}
+          goos: darwin
+          goarch: arm64
+          extra_files: gitcd-go-runner.sh

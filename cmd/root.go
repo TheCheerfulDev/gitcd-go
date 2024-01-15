@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/thecheerfuldev/gitcd/config"
-	"github.com/thecheerfuldev/gitcd/repository"
+	"github.com/thecheerfuldev/gitcd-go/config"
+	"github.com/thecheerfuldev/gitcd-go/repository"
 	"io/fs"
 	"os"
 	"path/filepath"

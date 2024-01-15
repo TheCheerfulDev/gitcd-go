@@ -4,9 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package main
 
 import (
-	"github.com/thecheerfuldev/gitcd/cmd"
-	"github.com/thecheerfuldev/gitcd/config"
-	"github.com/thecheerfuldev/gitcd/repository"
+	"github.com/thecheerfuldev/gitcd-go/cmd"
+	"github.com/thecheerfuldev/gitcd-go/config"
+	"github.com/thecheerfuldev/gitcd-go/repository"
 )
 
 func main() {
