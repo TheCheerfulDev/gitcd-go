@@ -2,7 +2,7 @@
 
 /Users/mark/dev/thecheerfuldev/sources/gitcd-go/gitcd $*
 
-if [ -f /tmp/gitcd-action.sh ]; then
-  source /tmp/gitcd-action.sh
-  rm /tmp/gitcd-action.sh
+if [ -f /Users/mark/.config/gitcd/change_dir.sh ]; then
+  source /Users/mark/.config/gitcd/change_dir.sh
+  rm /Users/mark/.config/gitcd/change_dir.sh
 fi

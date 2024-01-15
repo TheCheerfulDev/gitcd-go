@@ -3,13 +3,15 @@ package repository
 import (
 	"bufio"
 	"fmt"
+	"github.com/thecheerfuldev/gitcd/config"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 var database = map[string]Project{}
-var dbFilePath = "/tmp/gitcd.db"
+var dbFilePath string
 var isModified = false
 
 type Project struct {
@@ -114,6 +116,7 @@ func readDatabase() {
 }
 
 func Init() {
+	dbFilePath = config.GetDatabaseFilePath()
 	if _, err := os.Stat(dbFilePath); os.IsNotExist(err) {
 		create, _ := os.Create(dbFilePath)
 		err := create.Close()
@@ -130,8 +133,6 @@ func WriteChangesToDatabase() {
 		return
 	}
 
-	fmt.Println("DB modified, writing to disk")
-
 	databaseFile, err := os.OpenFile(dbFilePath, os.O_TRUNC|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		fmt.Println(err)
@@ -144,4 +145,85 @@ func WriteChangesToDatabase() {
 			fmt.Println(err)
 		}
 	}
+}
+
+type lessFunc func(p1, p2 *Project) bool
+
+type MultiSorter struct {
+	projects []Project
+	less     []lessFunc
+}
+
+func (ms *MultiSorter) Sort(projects []Project) {
+	ms.projects = projects
+	sort.Sort(ms)
+}
+
+func OrderedBy(less ...lessFunc) *MultiSorter {
+	return &MultiSorter{
+		less: less,
+	}
+}
+
+// Len is part of sort.Interface.
+func (ms *MultiSorter) Len() int {
+	return len(ms.projects)
+}
+
+// Swap is part of sort.Interface.
+func (ms *MultiSorter) Swap(i, j int) {
+	ms.projects[i], ms.projects[j] = ms.projects[j], ms.projects[i]
+}
+
+// Less is part of sort.Interface. It is implemented by looping along the
+// less functions until it finds a comparison that discriminates between
+// the two items (one is less than the other). Note that it can call the
+// less functions twice per call. We could change the functions to return
+// -1, 0, 1 and reduce the number of calls for greater efficiency: an
+// exercise for the reader.
+func (ms *MultiSorter) Less(i, j int) bool {
+	p, q := &ms.projects[i], &ms.projects[j]
+	// Try all but the last comparison.
+	var k int
+	for k = 0; k < len(ms.less)-1; k++ {
+		less := ms.less[k]
+		switch {
+		case less(p, q):
+			// p < q, so we have a decision.
+			return true
+		case less(q, p):
+			// p > q, so we have a decision.
+			return false
+		}
+		// p == q; try the next comparison.
+	}
+	// All comparisons to here said "equal", so just return whatever
+	// the final comparison reports.
+	return ms.less[k](p, q)
+}
+
+func GiveTopTen() []string {
+	projects := make([]Project, 0)
+	for _, project := range database {
+		projects = append(projects, project)
+	}
+
+	// Closures that order the Change structure.
+	count := func(c1, c2 *Project) bool {
+		return c1.CallCounter > c2.CallCounter
+	}
+	path := func(c1, c2 *Project) bool {
+		return c1.Path < c2.Path
+	}
+
+	// Simple use: Sort by count.
+	OrderedBy(count, path).Sort(projects)
+
+	topTenProjects := make([]string, 10)
+	for i, project := range projects[:10] {
+		topTenProjects[i] = project.Path
+	}
+
+	return topTenProjects
+
 }
