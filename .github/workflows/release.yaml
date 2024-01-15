@@ -9,7 +9,6 @@ permissions:
 jobs:
   release-linux-amd64:
     name: release linux/amd64
-    needs: [ create_release ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
