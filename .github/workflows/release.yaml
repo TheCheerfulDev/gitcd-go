@@ -1,22 +1,12 @@
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [ created ]
 
 permissions:
   contents: write
-  pull-requests: read
+  packages: write
 
 jobs:
-  release-on-tag-push:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: rymndhng/release-on-push-action@master
-        with:
-          bump_version_scheme: minor
-          tag_prefix: ""
   release-linux-amd64:
     name: Release Go Binary
     runs-on: ubuntu-latest
