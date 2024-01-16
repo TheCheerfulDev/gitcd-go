@@ -47,3 +47,34 @@ func TestDefault(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
+
+func TestSetGet(t *testing.T) {
+	cfg := Default()
+	Set(cfg)
+	got := Get()
+	want := cfg
+	if got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestInit(t *testing.T) {
+	tempDir := path.Join(os.TempDir(), "gitcd")
+	defer os.RemoveAll(tempDir)
+
+	cfg := Default()
+	cfg.gitCdHomePath = tempDir
+	err := Init(cfg)
+	if err != nil {
+		t.Errorf("got %v, want %v", err, nil)
+	}
+	if _, err := os.Stat(tempDir); err != nil {
+		t.Errorf("got %v, want %v", err, nil)
+	}
+
+	got := Get()
+
+	if got != cfg {
+		t.Errorf("got %v, want %v", got, cfg)
+	}
+}
