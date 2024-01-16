@@ -9,16 +9,15 @@ import (
 var gitCdHomePath, databaseFilePath, dirChangerPath, projectRootPath string
 
 func Init() {
-
+	homeDir, _ := os.UserHomeDir()
 	lookupEnv, exists := os.LookupEnv("GITCD_PROJECT_HOME")
 
-	if !exists {
-		fmt.Println("GITCD_PROJECT_HOME environment variable is missing")
-		os.Exit(1)
+	if exists {
+		projectRootPath = lookupEnv
+	} else {
+		projectRootPath = homeDir
 	}
 
-	projectRootPath = lookupEnv
-	homeDir, _ := os.UserHomeDir()
 	gitCdHomePath = path.Join(homeDir, ".config", "gitcd")
 	databaseFilePath = path.Join(gitCdHomePath, "gitcd.db")
 	dirChangerPath = path.Join(gitCdHomePath, "change_dir.sh")

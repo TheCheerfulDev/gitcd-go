@@ -36,7 +36,7 @@ func (project *Project) saveString() string {
 	return fmt.Sprintf("%v;%v", project.Path, project.CallCounter)
 }
 
-func AddProjectFromDb(path string, callCount int) *Project {
+func addProjectFromDb(path string, callCount int) *Project {
 	project := Project{
 		Path:        path,
 		CallCounter: callCount,
@@ -137,7 +137,7 @@ func readDatabase() {
 		if split[1] == "" {
 			continue
 		}
-		AddProjectFromDb(split[0], callCount)
+		addProjectFromDb(split[0], callCount)
 	}
 }
 
