@@ -19,7 +19,7 @@ var countSorter = func(c1, c2 *Project) bool {
 	return c1.CallCounter > c2.CallCounter
 }
 var pathSorter = func(c1, c2 *Project) bool {
-	return c1.Path < c2.Path
+	return c1.Path > c2.Path
 }
 
 type Project struct {
@@ -216,7 +216,7 @@ func (ms *MultiSorter) Less(i, j int) bool {
 			return false
 		}
 	}
-	return ms.less[k](p, q)
+	return ms.less[k](q, p)
 }
 
 func GiveTopTen() []string {
