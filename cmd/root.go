@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -50,7 +49,6 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 		}
 
 		if len(args) == 1 {
-			//matches := repository.GetProjectsContaining(args[0])
 			matches := repository.GetProjectsRegex(args[0])
 			if len(matches) == 0 {
 				fmt.Println("No projects found.")
@@ -88,7 +86,6 @@ func handleMultipleMatches(matches []string) {
 	fmt.Print("Pick a project: ")
 	var choice string
 	_, _ = fmt.Scan(&choice)
-
 	convertedChoice, err := strconv.ParseInt(choice, 10, 0)
 
 	if err != nil || convertedChoice > numberOfOptions {
@@ -110,26 +107,36 @@ cd %v`, path))
 }
 
 func handleScanFlag() {
-	if _, err := os.Stat(config.Get().ProjectRootPath); os.IsNotExist(err) {
+	root := config.Get().ProjectRootPath
+	if _, err := os.Stat(root); os.IsNotExist(err) {
 		fmt.Println("$GITCD_PROJECT_HOME does not exist")
 	}
-
-	filepath.WalkDir(config.Get().ProjectRootPath, func(path string, d fs.DirEntry, err error) error {
+	fmt.Printf("Scanning %v for git projects. This might take a while... ", root)
+	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && d.Name() == ".git" {
-			parentDir := strings.Replace(path, "/.git", "", 1)
-			repository.AddProject(parentDir, 0)
+			repository.AddProject(filepath.Dir(path), 0)
 		}
 		return nil
 	})
+	fmt.Println("Done!")
 }
 
 func handleCleanFlag() {
 	for _, path := range repository.GetAllProjects() {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
-			repository.RemoveProject(path)
-			fmt.Println("Removed:", path)
+			removeProject(path)
+			continue
+		}
+
+		if _, err := os.Stat(filepath.Join(path, ".git")); os.IsNotExist(err) {
+			removeProject(path)
 		}
 	}
+}
+
+func removeProject(path string) {
+	repository.RemoveProject(path)
+	fmt.Println("Removed:", path)
 }
 
 func Execute() {

@@ -64,7 +64,6 @@ func AddProject(path string, callCount int) *Project {
 }
 
 func GetAllProjects() []string {
-	//result := make([]string, 0)
 	result := make([]string, len(database))
 
 	index := 0
@@ -203,7 +202,6 @@ func (ms *MultiSorter) Swap(i, j int) {
 
 func (ms *MultiSorter) Less(i, j int) bool {
 	p, q := &ms.projects[i], &ms.projects[j]
-	// Try all but the last comparison.
 	var k int
 	for k = 0; k < len(ms.less)-1; k++ {
 		less := ms.less[k]
