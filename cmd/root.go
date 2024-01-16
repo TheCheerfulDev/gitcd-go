@@ -20,10 +20,8 @@ var rootCmd = &cobra.Command{
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		resetFlagUsed, _ := cmd.Flags().GetBool("reset")
 		if resetFlagUsed {
-			// wipe database
 			repository.ResetDatabase()
 			handleScanFlag()
 			return
@@ -69,10 +67,10 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 }
 
 func handleSingleMatch(match string) {
-	err := os.WriteFile(config.GetDirChangerPath(), generateCdScript(match), 0755)
+	err := os.WriteFile(config.Get().DirChangerPath, generateCdScript(match), 0755)
 	if err != nil {
 		fmt.Println("Something went wrong while preparing to change directory:", err)
-		_ = os.Remove(config.GetDirChangerPath())
+		_ = os.Remove(config.Get().DirChangerPath)
 		os.Exit(1)
 	}
 	project := repository.GetProject(match)
@@ -112,11 +110,11 @@ cd %v`, path))
 }
 
 func handleScanFlag() {
-	if _, err := os.Stat(config.GetProjectRootPath()); os.IsNotExist(err) {
+	if _, err := os.Stat(config.Get().ProjectRootPath); os.IsNotExist(err) {
 		fmt.Println("$GITCD_PROJECT_HOME does not exist")
 	}
 
-	filepath.WalkDir(config.GetProjectRootPath(), func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(config.Get().ProjectRootPath, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && d.Name() == ".git" {
 			parentDir := strings.Replace(path, "/.git", "", 1)
 			repository.AddProject(parentDir, 0)

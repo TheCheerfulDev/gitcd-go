@@ -12,8 +12,8 @@ import (
 )
 
 var database = map[string]Project{}
-var dbFilePath string
 var isModified = false
+var cfg *config.Config
 
 var countSorter = func(c1, c2 *Project) bool {
 	return c1.CallCounter > c2.CallCounter
@@ -116,7 +116,7 @@ func GetProject(key string) Project {
 }
 
 func readDatabase() {
-	dbFile, _ := os.Open(dbFilePath)
+	dbFile, _ := os.Open(cfg.DatabaseFilePath)
 	defer dbFile.Close()
 
 	var lines []string
@@ -141,10 +141,10 @@ func readDatabase() {
 	}
 }
 
-func Init() {
-	dbFilePath = config.GetDatabaseFilePath()
-	if _, err := os.Stat(dbFilePath); os.IsNotExist(err) {
-		create, _ := os.Create(dbFilePath)
+func Init(config *config.Config) {
+	cfg = config
+	if _, err := os.Stat(cfg.DatabaseFilePath); os.IsNotExist(err) {
+		create, _ := os.Create(cfg.DatabaseFilePath)
 		err := create.Close()
 		if err != nil {
 			fmt.Println("Something went wrong while creating the gitcd database file: ", err)
@@ -159,7 +159,7 @@ func WriteChangesToDatabase() {
 		return
 	}
 
-	databaseFile, err := os.OpenFile(dbFilePath, os.O_TRUNC|os.O_WRONLY, os.ModePerm)
+	databaseFile, err := os.OpenFile(cfg.DatabaseFilePath, os.O_TRUNC|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		fmt.Println(err)
 	}
