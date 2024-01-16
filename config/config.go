@@ -1,43 +1,51 @@
 package config
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"path"
 )
 
-var gitCdHomePath, databaseFilePath, dirChangerPath, projectRootPath string
+type Config struct {
+	gitCdHomePath, DatabaseFilePath, DirChangerPath, ProjectRootPath string
+}
 
-func Init() {
+var cfg *Config
+
+func Default() *Config {
+	c := &Config{}
 	homeDir, _ := os.UserHomeDir()
 	lookupEnv, exists := os.LookupEnv("GITCD_PROJECT_HOME")
 
 	if exists {
-		projectRootPath = lookupEnv
+		c.ProjectRootPath = lookupEnv
 	} else {
-		projectRootPath = homeDir
+		c.ProjectRootPath = homeDir
 	}
 
-	gitCdHomePath = path.Join(homeDir, ".config", "gitcd")
-	databaseFilePath = path.Join(gitCdHomePath, "gitcd.db")
-	dirChangerPath = path.Join(gitCdHomePath, "change_dir.sh")
+	c.gitCdHomePath = path.Join(homeDir, ".config", "gitcd")
+	c.DatabaseFilePath = path.Join(c.gitCdHomePath, "gitcd.db")
+	c.DirChangerPath = path.Join(c.gitCdHomePath, "change_dir.sh")
 
-	if _, err := os.Stat(gitCdHomePath); os.IsNotExist(err) {
-		err := os.MkdirAll(gitCdHomePath, 0755)
+	return c
+}
+
+func Set(c *Config) {
+	cfg = c
+}
+
+func Get() *Config {
+	return cfg
+}
+
+func Init(c *Config) error {
+	if _, err := os.Stat(c.gitCdHomePath); os.IsNotExist(err) {
+		err := os.MkdirAll(c.gitCdHomePath, 0755)
 		if err != nil {
-			fmt.Println("Unable to create gitcd configuration directory: ", gitCdHomePath)
+			//fmt.Println("Unable to create gitcd configuration directory: ", c.gitCdHomePath)
+			return errors.New("unable to create gitcd configuration directory " + c.gitCdHomePath)
 		}
 	}
-}
-
-func GetProjectRootPath() string {
-	return projectRootPath
-}
-
-func GetDatabaseFilePath() string {
-	return databaseFilePath
-}
-
-func GetDirChangerPath() string {
-	return dirChangerPath
+	Set(c)
+	return nil
 }
