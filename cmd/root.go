@@ -13,9 +13,10 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "gitcd [git repo]",
-	Args:  cobra.MaximumNArgs(1),
-	Short: "",
+	Use:     "gitcd [git repo]",
+	Args:    cobra.MaximumNArgs(1),
+	Version: "1.0.1",
+	Short:   "",
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -147,6 +148,7 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.SetVersionTemplate(fmt.Sprintf("gitcd version %s - © Mark Hendriks <thecheerfuldev>\n", rootCmd.Version))
 	rootCmd.Flags().BoolP("scan", "", false, "Scan for git projects in $GITCD_PROJECT_HOME")
 	rootCmd.Flags().BoolP("clean", "", false, "Remove all projects that no longer exist")
 	rootCmd.Flags().BoolP("reset", "", false, "Resets the database and scans for git project in $GITCD_PROJECT_HOME")
