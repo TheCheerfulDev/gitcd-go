@@ -15,7 +15,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:     "gitcd [git repo]",
 	Args:    cobra.MaximumNArgs(1),
-	Version: "1.0.2",
+	Version: "1.0.3",
 	Short:   "",
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
@@ -89,6 +89,7 @@ func handleMultipleMatches(matches []string) {
 	_, _ = fmt.Scan(&choice)
 
 	if choice == "q" {
+		fmt.Println("Quitting.")
 		return
 	}
 
@@ -115,12 +116,12 @@ cd %v`, path))
 func handleScanFlag() {
 	root := config.Get().ProjectRootPath
 	if _, err := os.Stat(root); os.IsNotExist(err) {
-		fmt.Println("$GITCD_PROJECT_HOME does not exist")
+		fmt.Printf("$GITCD_PROJECT_HOME (%s) does not exist\n", root)
 	}
 	fmt.Printf("Scanning %v for git projects. This might take a while... ", root)
-	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && d.Name() == ".git" {
-			repository.AddProject(filepath.Dir(path), 0)
+			repository.AddProject(filepath.Dir(path))
 		}
 		return nil
 	})

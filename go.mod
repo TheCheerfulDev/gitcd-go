@@ -1,6 +1,6 @@
 module github.com/thecheerfuldev/gitcd-go
 
-go 1.21.6
+go 1.21.7
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

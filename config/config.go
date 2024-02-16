@@ -10,10 +10,10 @@ type Config struct {
 	gitCdHomePath, DatabaseFilePath, DirChangerPath, ProjectRootPath string
 }
 
-var cfg *Config
+var cfg Config
 
-func Default() *Config {
-	c := &Config{}
+func Default() Config {
+	c := Config{}
 	homeDir, _ := os.UserHomeDir()
 	lookupEnv, exists := os.LookupEnv("GITCD_PROJECT_HOME")
 
@@ -30,15 +30,15 @@ func Default() *Config {
 	return c
 }
 
-func Set(c *Config) {
+func Set(c Config) {
 	cfg = c
 }
 
-func Get() *Config {
+func Get() Config {
 	return cfg
 }
 
-func Init(c *Config) error {
+func Init(c Config) error {
 	if _, err := os.Stat(c.gitCdHomePath); os.IsNotExist(err) {
 		err := os.MkdirAll(c.gitCdHomePath, 0755)
 		if err != nil {

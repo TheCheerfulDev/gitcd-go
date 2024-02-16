@@ -13,7 +13,7 @@ import (
 
 var database = map[string]Project{}
 var isModified = false
-var cfg *config.Config
+var cfg config.Config
 
 var countSorter = func(c1, c2 *Project) bool {
 	return c1.CallCounter > c2.CallCounter
@@ -36,31 +36,29 @@ func (project *Project) saveString() string {
 	return fmt.Sprintf("%v;%v", project.Path, project.CallCounter)
 }
 
-func addProjectFromDb(path string, callCount int) *Project {
+func addProjectFromDb(path string, callCount int) {
 	project := Project{
 		Path:        path,
 		CallCounter: callCount,
 	}
 
 	database[path] = project
-	return &project
 }
 
-func AddProject(path string, callCount int) *Project {
+func AddProject(path string) {
 	project, exists := database[path]
 
 	if exists {
-		return &project
+		return
 	}
 
 	project = Project{
 		Path:        path,
-		CallCounter: callCount,
+		CallCounter: 0,
 	}
 
 	database[path] = project
 	isModified = true
-	return &project
 }
 
 func GetAllProjects() []string {
@@ -140,7 +138,7 @@ func readDatabase() {
 	}
 }
 
-func Init(config *config.Config) {
+func Init(config config.Config) {
 	cfg = config
 	if _, err := os.Stat(cfg.DatabaseFilePath); os.IsNotExist(err) {
 		create, _ := os.Create(cfg.DatabaseFilePath)
