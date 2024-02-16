@@ -51,21 +51,7 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 			return
 		}
 
-		if len(args) == 1 {
-			matches := repository.GetProjectsRegex(args[0])
-			if len(matches) == 0 {
-				fmt.Println("No projects found.")
-				os.Exit(0)
-			}
-
-			if len(matches) == 1 {
-				handleSingleMatch(matches[0])
-				return
-			}
-			handleMultipleMatches(matches)
-		}
-
-		if len(args) > 1 {
+		if len(args) > 0 {
 			expression := extractExpression(args)
 			matches := repository.GetProjectsRegex(expression)
 			if len(matches) == 0 {
@@ -84,6 +70,7 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 
 func extractExpression(args []string) string {
 	var expression = args[0]
+
 	for i := 1; i < len(args); i++ {
 		expression += ".*" + args[i]
 	}
@@ -110,7 +97,7 @@ func handleMultipleMatches(matches []string) {
 		numberOfOptions++
 	}
 
-	fmt.Print("Pick a project: ")
+	fmt.Print("Select a project: ")
 	var choice string
 	_, _ = fmt.Scan(&choice)
 
