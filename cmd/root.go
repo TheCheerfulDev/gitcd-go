@@ -5,17 +5,19 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/thecheerfuldev/gitcd-go/config"
 	"github.com/thecheerfuldev/gitcd-go/repository"
+	"github.com/theckman/yacspin"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use: "gitcd [git repo]",
 	//Args:    cobra.MaximumNArgs(1),
-	Version: "1.0.3",
+	Version: "1.0.4",
 	Short:   "",
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
@@ -141,7 +143,22 @@ func handleScanFlag() {
 	root := config.Get().ProjectRootPath
 	if _, err := os.Stat(root); os.IsNotExist(err) {
 		fmt.Printf("$GITCD_PROJECT_HOME (%s) does not exist\n", root)
+		return
 	}
+
+	cfg := yacspin.Config{
+		Frequency:       100 * time.Millisecond,
+		CharSet:         yacspin.CharSets[2],
+		Colors:          []string{"fgYellow"},
+		Suffix:          " Scanning for git projects, this might take a while...",
+		SuffixAutoColon: false,
+		StopCharacter:   "✓",
+		StopColors:      []string{"fgGreen"},
+		StopMessage:     " Done!",
+	}
+	s, _ := yacspin.New(cfg)
+	_ = s.Start()
+
 	fmt.Printf("Scanning %v for git projects. This might take a while... ", root)
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && d.Name() == ".git" {
@@ -149,7 +166,7 @@ func handleScanFlag() {
 		}
 		return nil
 	})
-	fmt.Println("Done!")
+	_ = s.Stop()
 }
 
 func handleCleanFlag() {
