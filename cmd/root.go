@@ -13,8 +13,8 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "gitcd [git repo]",
-	Args:    cobra.MaximumNArgs(1),
+	Use: "gitcd [git repo]",
+	//Args:    cobra.MaximumNArgs(1),
 	Version: "1.0.3",
 	Short:   "",
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
@@ -62,7 +62,31 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 			}
 			handleMultipleMatches(matches)
 		}
+
+		if len(args) > 1 {
+			expression := extractExpression(args)
+			matches := repository.GetProjectsRegex(expression)
+			if len(matches) == 0 {
+				fmt.Println("No projects found.")
+				os.Exit(0)
+			}
+
+			if len(matches) == 1 {
+				handleSingleMatch(matches[0])
+				return
+			}
+			handleMultipleMatches(matches)
+		}
 	},
+}
+
+func extractExpression(args []string) string {
+	var expression = args[0]
+	for i := 1; i < len(args); i++ {
+		expression += ".*" + args[i]
+	}
+	return expression
+
 }
 
 func handleSingleMatch(match string) {
@@ -88,7 +112,7 @@ func handleMultipleMatches(matches []string) {
 	var choice string
 	_, _ = fmt.Scan(&choice)
 
-	if choice == "q" {
+	if choice == "q" || choice == "0" {
 		fmt.Println("Quitting.")
 		return
 	}
@@ -100,17 +124,17 @@ func handleMultipleMatches(matches []string) {
 		return
 	}
 
-	if convertedChoice == 0 {
-		return
-	}
-
 	handleSingleMatch(matches[convertedChoice-1])
 }
 
 func generateCdScript(path string) []byte {
+	shell, b := os.LookupEnv("SHELL")
+	if !b {
+		shell = "/bin/bash"
+	}
 	return []byte(fmt.Sprintf(
-		`#! /bin/bash
-cd %v`, path))
+		`#!%s
+cd %s`, shell, path))
 }
 
 func handleScanFlag() {
