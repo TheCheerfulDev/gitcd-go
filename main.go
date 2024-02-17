@@ -15,7 +15,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	repository.Init(c)
+	_ = repository.Init(c)
 	defer repository.WriteChangesToDatabase()
 	cmd.Execute()
 }

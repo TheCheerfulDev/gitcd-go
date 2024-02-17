@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/thecheerfuldev/gitcd-go/config"
 	"os"
@@ -78,12 +79,11 @@ func RemoveProject(key string) {
 	isModified = true
 }
 
-func GetProjectsRegex(input string) []string {
+func GetProjectsRegex(input string) ([]string, error) {
 	projects := make([]Project, 0)
 	compile, err := regexp.Compile(input)
 	if err != nil {
-		fmt.Println("Invalid regular expression.")
-		os.Exit(1)
+		return nil, errors.New("Invalid regular expression")
 	}
 
 	for key, project := range database {
@@ -99,7 +99,7 @@ func GetProjectsRegex(input string) []string {
 	for _, value := range projects {
 		result = append(result, value.Path)
 	}
-	return result
+	return result, nil
 }
 
 func SaveProject(project Project) {
@@ -138,17 +138,23 @@ func readDatabase() {
 	}
 }
 
-func Init(config config.Config) {
+func Init(config config.Config) error {
 	cfg = config
 	if _, err := os.Stat(cfg.DatabaseFilePath); os.IsNotExist(err) {
-		create, _ := os.Create(cfg.DatabaseFilePath)
-		err := create.Close()
+		create, err := os.Create(cfg.DatabaseFilePath)
 		if err != nil {
 			fmt.Println("Something went wrong while creating the gitcd database file: ", err)
-			os.Exit(1)
+			return err
+		}
+
+		err = create.Close()
+		if err != nil {
+			fmt.Println("Something went wrong while creating the gitcd database file: ", err)
+			return err
 		}
 	}
 	readDatabase()
+	return nil
 }
 
 func WriteChangesToDatabase() {
@@ -240,4 +246,5 @@ func GiveTopTen() []string {
 
 func ResetDatabase() {
 	database = map[string]Project{}
+	isModified = true
 }

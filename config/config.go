@@ -3,11 +3,11 @@ package config
 import (
 	"errors"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 type Config struct {
-	gitCdHomePath, DatabaseFilePath, DirChangerPath, ProjectRootPath string
+	GitCdHomePath, DatabaseFilePath, DirChangerPath, ProjectRootPath string
 }
 
 var cfg Config
@@ -23,9 +23,9 @@ func Default() Config {
 		c.ProjectRootPath = homeDir
 	}
 
-	c.gitCdHomePath = path.Join(homeDir, ".config", "gitcd")
-	c.DatabaseFilePath = path.Join(c.gitCdHomePath, "gitcd.db")
-	c.DirChangerPath = path.Join(c.gitCdHomePath, "change_dir.sh")
+	c.GitCdHomePath = filepath.Join(homeDir, ".config", "gitcd")
+	c.DatabaseFilePath = filepath.Join(c.GitCdHomePath, "gitcd.db")
+	c.DirChangerPath = filepath.Join(c.GitCdHomePath, "change_dir.sh")
 
 	return c
 }
@@ -39,11 +39,10 @@ func Get() Config {
 }
 
 func Init(c Config) error {
-	if _, err := os.Stat(c.gitCdHomePath); os.IsNotExist(err) {
-		err := os.MkdirAll(c.gitCdHomePath, 0755)
+	if _, err := os.Stat(c.GitCdHomePath); os.IsNotExist(err) {
+		err := os.MkdirAll(c.GitCdHomePath, 0755)
 		if err != nil {
-			//fmt.Println("Unable to create gitcd configuration directory: ", c.gitCdHomePath)
-			return errors.New("unable to create gitcd configuration directory " + c.gitCdHomePath)
+			return errors.New("unable to create gitcd configuration directory " + c.GitCdHomePath)
 		}
 	}
 	Set(c)

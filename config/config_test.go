@@ -1,51 +1,45 @@
 package config
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"path"
-	"strings"
 	"testing"
 )
 
 func TestDefault(t *testing.T) {
+	projectRoot := t.TempDir()
+	_ = os.Setenv("GITCD_PROJECT_HOME", projectRoot)
 
 	cfg := Default()
 	home, _ := os.UserHomeDir()
-
-	got := cfg.gitCdHomePath
+	got := cfg.GitCdHomePath
 	want := path.Join(home, ".config", "gitcd")
-	compare := strings.Compare(got, want)
-	if compare != 0 {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
 
 	got = cfg.DatabaseFilePath
-	want = path.Join(cfg.gitCdHomePath, "gitcd.db")
-	compare = strings.Compare(got, want)
-	if compare != 0 {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	want = path.Join(cfg.GitCdHomePath, "gitcd.db")
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
 
 	got = cfg.ProjectRootPath
-
-	lookupEnv, exists := os.LookupEnv("GITCD_PROJECT_HOME")
-	if exists {
-		want = lookupEnv
-	} else {
-		want = home
-	}
-
-	compare = strings.Compare(got, want)
-	if compare != 0 {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	want = projectRoot
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
 
 	got = cfg.DirChangerPath
-	want = path.Join(cfg.gitCdHomePath, "change_dir.sh")
-	compare = strings.Compare(got, want)
-	if compare != 0 {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	want = path.Join(cfg.GitCdHomePath, "change_dir.sh")
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
+
+}
+
+func TestDefaultWithHomeDir(t *testing.T) {
+	home, _ := os.UserHomeDir()
+	_ = os.Unsetenv("GITCD_PROJECT_HOME")
+
+	cfg := Default()
+	got := cfg.ProjectRootPath
+	want := home
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
+
 }
 
 func TestSetGet(t *testing.T) {
@@ -53,28 +47,26 @@ func TestSetGet(t *testing.T) {
 	Set(cfg)
 	got := Get()
 	want := cfg
-	if got != want {
-		t.Errorf("got %v, want %v", got, want)
-	}
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
 }
 
 func TestInit(t *testing.T) {
 	tempDir := path.Join(os.TempDir(), "gitcd")
 	defer os.RemoveAll(tempDir)
 
-	cfg := Default()
-	cfg.gitCdHomePath = tempDir
+	cfg := Config{
+		GitCdHomePath: tempDir,
+	}
 	err := Init(cfg)
-	if err != nil {
-		t.Errorf("got %v, want %v", err, nil)
-	}
-	if _, err := os.Stat(tempDir); err != nil {
-		t.Errorf("got %v, want %v", err, nil)
-	}
 
+	assert.NoError(t, err, "got %v, want %v", err, nil)
+	assert.DirExists(t, tempDir, "got %v, want %v", tempDir, "to exist")
+}
+
+func TestGet(t *testing.T) {
+	cfg := Default()
+	Set(cfg)
 	got := Get()
-
-	if got != cfg {
-		t.Errorf("got %v, want %v", got, cfg)
-	}
+	want := cfg
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
 }

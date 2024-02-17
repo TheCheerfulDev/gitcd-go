@@ -37,7 +37,7 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 
 		if len(repository.GetAllProjects()) == 0 {
 			fmt.Println("Your database appears to be empty. Run gitcd with the --scan flag to index your git projects.")
-			os.Exit(1)
+			return
 		}
 
 		cleanFlagUsed, _ := cmd.Flags().GetBool("clean")
@@ -53,10 +53,14 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 
 		if len(args) > 0 {
 			expression := extractExpression(args)
-			matches := repository.GetProjectsRegex(expression)
+			matches, err := repository.GetProjectsRegex(expression)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			if len(matches) == 0 {
 				fmt.Println("No projects found.")
-				os.Exit(0)
+				return
 			}
 
 			if len(matches) == 1 {
