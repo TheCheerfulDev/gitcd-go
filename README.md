@@ -5,21 +5,71 @@ GitCD is a CLI tool that lets you easily index and navigate to git projects.
 # Prerequisites
 
 * MacOS or Linux
-* [homebrew](https://brew.sh/) installed
+* Optional: [homebrew](https://brew.sh/) installed
+* Optional: [Go 1.22+](https://golang.org/dl/) installed
 
 # Installation
 
-```bash
-brew tap thecheerfuldev/cli
-brew install thecheefuldev/cli/gitcd
-```
+## Homebrew
 
-Then add the following to your profile (.profile .bashrc .zshrc etc...)
+1. Tap the repository
 
-```bash
-export GITCD_PROJECT_HOME=</your/projects/root>
-alias alias gcd="source gitcd-go-runner.sh"
-```
+    ```bash
+    brew tap thecheerfuldev/cli
+    ```
+2. Install gitcd
+
+    ```bash
+    brew install thecheerfuldev/cli/gitcd
+    ```
+
+3. Add the following to your profile (.profile .bashrc .zshrc etc...)
+
+    ```bash
+    export GITCD_PROJECT_HOME=</your/projects/root>
+    alias gcd="source gitcd-go-runner.sh"
+    ```
+
+Or pick any alias that you prefer.
+
+NOTE: If GITCD_PROJECT_HOME is NOT set, your home directory will be used instead.
+
+## Download and install manually
+
+1. Download the latest release from the [releases page](https://github.com/TheCheerfulDev/gitcd-go/releases/latest)
+2. Extract the archive
+3. Move the binary and runner script to a location in your PATH
+4. Add the following to your profile (.profile .bashrc .zshrc etc...)
+
+    ```bash
+    export GITCD_PROJECT_HOME=</your/projects/root>
+    alias gcd="source gitcd-go-runner.sh"
+    ```
+
+Or pick any alias that you prefer.
+
+NOTE: If GITCD_PROJECT_HOME is NOT set, your home directory will be used instead.
+
+## Build from source
+
+1. Clone the repository to a location of your choice
+
+    ```bash
+    git clone https://github.com/TheCheerfulDev/gitcd-go.git
+    ```
+2. Make sure the location of the cloned repository is in your PATH
+3. Build the binary
+
+    ```bash
+    go build
+    ```
+
+4. Add the following to your profile (.profile .bashrc .zshrc etc...)
+
+    ```bash
+    export GITCD_PROJECT_HOME=</your/projects/root>
+    alias gcd="source gitcd-go-runner.sh"
+    ```
 
 Or pick any alias that you prefer.
 
@@ -41,7 +91,7 @@ You can find all commands with
 gcd --help
 ```
 
-## Scanning
+### Scanning
 
 Before your first usage, you should can for git repositories
 
@@ -49,7 +99,27 @@ Before your first usage, you should can for git repositories
 gcd --scan
 ```
 
-## Cleaning Database
+### Searching
+
+Search for a project
+
+```bash
+gcd <part of project name>
+```
+
+You can also use regex, make sure to use quotes
+
+```bash
+gcd ".*project.*"
+```
+
+You can also use multiple search terms, separated by spaces. Each term is stitched together with the .* regex
+
+```bash
+gcd first second third
+```
+
+### Cleaning Database
 
 Purge repositories that no longer exist
 
@@ -57,7 +127,7 @@ Purge repositories that no longer exist
 gcd --clean
 ```
 
-## Full Reset
+### Full Reset
 
 Clear the entire database and scan for git repositories
 
@@ -65,9 +135,13 @@ Clear the entire database and scan for git repositories
 gcd --reset
 ```
 
-## Environment variables
+### Environment variables
 
 * GITCD_PROJECT_HOME - Root directory for your projects
+
+# License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details
 
 # Special thanks
 

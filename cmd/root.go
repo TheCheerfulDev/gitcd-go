@@ -13,23 +13,27 @@ import (
 	"time"
 )
 
+const resetFlag = "reset"
+const scanFlag = "scan"
+const cleanFlag = "clean"
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use: "gitcd [git repo]",
 	//Args:    cobra.MaximumNArgs(1),
-	Version: "1.0.4",
+	Version: "1.0.5",
 	Short:   "",
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resetFlagUsed, _ := cmd.Flags().GetBool("reset")
+		resetFlagUsed, _ := cmd.Flags().GetBool(resetFlag)
 		if resetFlagUsed {
 			repository.ResetDatabase()
 			handleScanFlag()
 			return
 		}
 
-		scanFlagUsed, _ := cmd.Flags().GetBool("scan")
+		scanFlagUsed, _ := cmd.Flags().GetBool(scanFlag)
 		if scanFlagUsed {
 			handleScanFlag()
 			return
@@ -40,7 +44,7 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 			return
 		}
 
-		cleanFlagUsed, _ := cmd.Flags().GetBool("clean")
+		cleanFlagUsed, _ := cmd.Flags().GetBool(cleanFlag)
 		if cleanFlagUsed {
 			handleCleanFlag()
 			return
@@ -51,24 +55,23 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 			return
 		}
 
-		if len(args) > 0 {
-			expression := extractExpression(args)
-			matches, err := repository.GetProjectsRegex(expression)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if len(matches) == 0 {
-				fmt.Println("No projects found.")
-				return
-			}
-
-			if len(matches) == 1 {
-				handleSingleMatch(matches[0])
-				return
-			}
-			handleMultipleMatches(matches)
+		// If we have arguments, we'll assume it's a regex
+		expression := extractExpression(args)
+		matches, err := repository.GetProjectsRegex(expression)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
+		if len(matches) == 0 {
+			fmt.Println("No projects found")
+			return
+		}
+
+		if len(matches) == 1 {
+			handleSingleMatch(matches[0])
+			return
+		}
+		handleMultipleMatches(matches)
 	},
 }
 
@@ -150,7 +153,6 @@ func handleScanFlag() {
 	s, _ := yacspin.New(cfg)
 	_ = s.Start()
 
-	fmt.Printf("Scanning %v for git projects. This might take a while... ", root)
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && d.Name() == ".git" {
 			repository.AddProject(filepath.Dir(path))
@@ -187,7 +189,7 @@ func Execute() {
 
 func init() {
 	rootCmd.SetVersionTemplate(fmt.Sprintf("gitcd version %s - © Mark Hendriks <thecheerfuldev>\n", rootCmd.Version))
-	rootCmd.Flags().BoolP("scan", "", false, "Scan for git projects in $GITCD_PROJECT_HOME")
-	rootCmd.Flags().BoolP("clean", "", false, "Remove all projects that no longer exist")
-	rootCmd.Flags().BoolP("reset", "", false, "Resets the database and scans for git project in $GITCD_PROJECT_HOME")
+	rootCmd.Flags().BoolP(scanFlag, "", false, "Scan for git projects in $GITCD_PROJECT_HOME")
+	rootCmd.Flags().BoolP(cleanFlag, "", false, "Remove all git projects that no longer exist")
+	rootCmd.Flags().BoolP(resetFlag, "", false, "Resets the database and scans for git project in $GITCD_PROJECT_HOME")
 }
