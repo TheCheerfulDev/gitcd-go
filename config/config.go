@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	GitCdHomePath, DatabaseFilePath, DirChangerPath, ProjectRootPath string
+	CaseSensitive                                                    bool
 }
 
 var cfg Config
@@ -21,6 +22,13 @@ func Default() Config {
 		c.ProjectRootPath = lookupEnv
 	} else {
 		c.ProjectRootPath = homeDir
+	}
+
+	lookupEnv, exists = os.LookupEnv("GITCD_CASE_SENSITIVE")
+	if exists {
+		c.CaseSensitive = lookupEnv == "true"
+	} else {
+		c.CaseSensitive = false
 	}
 
 	c.GitCdHomePath = filepath.Join(homeDir, ".config", "gitcd")

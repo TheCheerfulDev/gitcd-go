@@ -81,12 +81,18 @@ func RemoveProject(key string) {
 
 func GetProjectsRegex(input string) ([]string, error) {
 	projects := make([]Project, 0)
+	if caseInsensitive() {
+		input = strings.ToLower(input)
+	}
 	compile, err := regexp.Compile(input)
 	if err != nil {
 		return nil, errors.New("Invalid regular expression")
 	}
 
 	for key, project := range database {
+		if caseInsensitive() {
+			key = strings.ToLower(key)
+		}
 		if compile.MatchString(key) {
 			projects = append(projects, project)
 		}
@@ -242,6 +248,10 @@ func GiveTopTen() []string {
 
 	return topTenProjects
 
+}
+
+func caseInsensitive() bool {
+	return !cfg.CaseSensitive
 }
 
 func ResetDatabase() {

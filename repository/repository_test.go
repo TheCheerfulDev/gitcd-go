@@ -287,6 +287,18 @@ func TestResetDatabase(t *testing.T) {
 
 }
 
+func TestCaseInsensitive(t *testing.T) {
+	initRepositoryTest(t)
+	path := "/test/path/to/project"
+
+	AddProject(path)
+
+	projects, _ := GetProjectsRegex(".*PROJECT.*")
+
+	assert.Len(t, projects, 1, "Expected to have 1 project")
+	assert.Equal(t, path, projects[0], "Expected path to be '%s'", path)
+}
+
 func initRepositoryTest(t *testing.T) {
 	tempDir := t.TempDir()
 	c := config.Config{

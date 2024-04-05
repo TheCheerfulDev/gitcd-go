@@ -42,6 +42,24 @@ func TestDefaultWithHomeDir(t *testing.T) {
 
 }
 
+func TestDefaultWithCaseSensitive(t *testing.T) {
+	_ = os.Setenv("GITCD_CASE_SENSITIVE", "true")
+
+	cfg := Default()
+	got := cfg.CaseSensitive
+	want := true
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
+}
+
+func TestDefaultWithCaseInsensitive(t *testing.T) {
+	_ = os.Unsetenv("GITCD_CASE_SENSITIVE")
+
+	cfg := Default()
+	got := cfg.CaseSensitive
+	want := false
+	assert.Equal(t, got, want, "got %v, want %v", got, want)
+}
+
 func TestSetGet(t *testing.T) {
 	cfg := Default()
 	Set(cfg)

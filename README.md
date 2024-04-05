@@ -138,6 +138,7 @@ gcd --reset
 ### Environment variables
 
 * GITCD_PROJECT_HOME - Root directory for your projects
+* GITCD_CASE_SENSITIVE - Set to true to make searches case-sensitive, defaults to false
 
 # License
 
