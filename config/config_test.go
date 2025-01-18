@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"os"
 	"path"
 	"testing"
@@ -13,21 +14,21 @@ func TestDefault(t *testing.T) {
 
 	cfg := Default()
 	home, _ := os.UserHomeDir()
-	got := cfg.GitCdHomePath
-	want := path.Join(home, ".config", "gitcd")
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual := cfg.GitCdHomePath
+	expected := path.Join(home, ".config", "gitcd")
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 
-	got = cfg.DatabaseFilePath
-	want = path.Join(cfg.GitCdHomePath, "gitcd.db")
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual = cfg.DatabaseFilePath
+	expected = path.Join(cfg.GitCdHomePath, "gitcd.db")
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 
-	got = cfg.ProjectRootPath
-	want = projectRoot
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual = cfg.ProjectRootPath
+	expected = projectRoot
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 
-	got = cfg.DirChangerPath
-	want = path.Join(cfg.GitCdHomePath, "change_dir.sh")
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual = cfg.DirChangerPath
+	expected = path.Join(cfg.GitCdHomePath, "change_dir.sh")
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 
 }
 
@@ -36,9 +37,9 @@ func TestDefaultWithHomeDir(t *testing.T) {
 	_ = os.Unsetenv("GITCD_PROJECT_HOME")
 
 	cfg := Default()
-	got := cfg.ProjectRootPath
-	want := home
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual := cfg.ProjectRootPath
+	expected := home
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 
 }
 
@@ -46,26 +47,26 @@ func TestDefaultWithCaseSensitive(t *testing.T) {
 	_ = os.Setenv("GITCD_CASE_SENSITIVE", "true")
 
 	cfg := Default()
-	got := cfg.CaseSensitive
-	want := true
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual := cfg.CaseSensitive
+	expected := true
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 }
 
 func TestDefaultWithCaseInsensitive(t *testing.T) {
 	_ = os.Unsetenv("GITCD_CASE_SENSITIVE")
 
 	cfg := Default()
-	got := cfg.CaseSensitive
-	want := false
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual := cfg.CaseSensitive
+	expected := false
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 }
 
 func TestSetGet(t *testing.T) {
 	cfg := Default()
 	Set(cfg)
-	got := Get()
-	want := cfg
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual := Get()
+	expected := cfg
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 }
 
 func TestInit(t *testing.T) {
@@ -77,14 +78,14 @@ func TestInit(t *testing.T) {
 	}
 	err := Init(cfg)
 
-	assert.NoError(t, err, "got %v, want %v", err, nil)
-	assert.DirExists(t, tempDir, "got %v, want %v", tempDir, "to exist")
+	require.NoError(t, err, "actual %v, expected %v", err, nil)
+	assert.DirExists(t, tempDir, "expected %v to exist", tempDir)
 }
 
 func TestGet(t *testing.T) {
 	cfg := Default()
 	Set(cfg)
-	got := Get()
-	want := cfg
-	assert.Equal(t, got, want, "got %v, want %v", got, want)
+	actual := Get()
+	expected := cfg
+	assert.Equal(t, expected, actual, "actual %v, expected %v", actual, expected)
 }

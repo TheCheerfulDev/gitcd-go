@@ -126,7 +126,7 @@ func TestGetProjectsRegexEmpty(t *testing.T) {
 
 	projects, _ := GetProjectsRegex(".*notfound.*")
 
-	assert.Len(t, projects, 0, "Expected to have 0 project")
+	assert.Empty(t, projects, "Expected to be empty")
 }
 
 func TestGetProjectsRegexInvalidRegex(t *testing.T) {
@@ -282,7 +282,7 @@ func TestResetDatabase(t *testing.T) {
 
 	ResetDatabase()
 
-	assert.Len(t, database, 0, "Expected database to be empty")
+	assert.Empty(t, database, "Expected database to be empty")
 	assert.True(t, isModified, "Expected isModified to be true")
 
 }

@@ -7,7 +7,7 @@ permissions:
   packages: write
 
 jobs:
-  release-linux-amd64:
+  release-go-binary:
     name: Release Go Binary
     runs-on: ubuntu-latest
     strategy:
@@ -16,7 +16,7 @@ jobs:
         goarch: [ "arm64", "amd64" ]
     steps:
       - uses: actions/checkout@v3
-      - uses: wangyoucao577/go-release-action@v1.42
+      - uses: wangyoucao577/go-release-action@v1.51
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
