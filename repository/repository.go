@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/thecheerfuldev/gitcd-go/config"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/thecheerfuldev/gitcd-go/config"
 )
 
 var database = map[string]Project{}
@@ -168,7 +169,7 @@ func WriteChangesToDatabase() {
 		return
 	}
 
-	databaseFile, err := os.OpenFile(cfg.DatabaseFilePath, os.O_TRUNC|os.O_WRONLY, os.ModePerm)
+	databaseFile, err := os.OpenFile(cfg.DatabaseFilePath, os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 	}

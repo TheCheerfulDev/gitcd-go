@@ -18,3 +18,7 @@ go.work
 # IntelliJ
 .idea
 *.iml
+
+# Local test stuff
+alias-gitcd.sh
+coverage.out
