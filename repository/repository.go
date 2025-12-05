@@ -99,7 +99,13 @@ func GetProjectsRegex(input string) ([]string, error) {
 		}
 	}
 
-	OrderedBy(countSorter, pathSorter).Sort(projects)
+	sort.Slice(projects, func(i, j int) bool {
+		if projects[i].CallCounter != projects[j].CallCounter {
+			return projects[i].CallCounter > projects[j].CallCounter
+		}
+		// CallCounters are equal, sort by Path, alphabetically, hence the "<"
+		return projects[i].Path < projects[j].Path
+	})
 
 	result := make([]string, 0)
 
@@ -183,58 +189,20 @@ func WriteChangesToDatabase() {
 	}
 }
 
-type lessFunc func(p1, p2 *Project) bool
-
-type MultiSorter struct {
-	projects []Project
-	less     []lessFunc
-}
-
-func (ms *MultiSorter) Sort(projects []Project) {
-	ms.projects = projects
-	sort.Sort(ms)
-}
-
-func OrderedBy(less ...lessFunc) *MultiSorter {
-	return &MultiSorter{
-		less: less,
-	}
-}
-
-// Len is part of sort.Interface.
-func (ms *MultiSorter) Len() int {
-	return len(ms.projects)
-}
-
-// Swap is part of sort.Interface.
-func (ms *MultiSorter) Swap(i, j int) {
-	ms.projects[i], ms.projects[j] = ms.projects[j], ms.projects[i]
-}
-
-func (ms *MultiSorter) Less(i, j int) bool {
-	p, q := &ms.projects[i], &ms.projects[j]
-	var k int
-	for k = 0; k < len(ms.less)-1; k++ {
-		less := ms.less[k]
-		switch {
-		case less(p, q):
-			// p < q, so we have a decision.
-			return true
-		case less(q, p):
-			// p > q, so we have a decision.
-			return false
-		}
-	}
-	return ms.less[k](q, p)
-}
-
 func GiveTopTen() []string {
 	projects := make([]Project, 0)
 	for _, project := range database {
 		projects = append(projects, project)
 	}
 
-	OrderedBy(countSorter, pathSorter).Sort(projects)
+	sort.Slice(projects, func(i, j int) bool {
+		if projects[i].CallCounter != projects[j].CallCounter {
+			return projects[i].CallCounter > projects[j].CallCounter
+		}
+		// CallCounters are equal, sort by Path, alphabetically, hence the "<"
+		return projects[i].Path < projects[j].Path
+	})
+
 	maxSize := 10
 
 	if len(projects) < maxSize {
