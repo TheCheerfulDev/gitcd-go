@@ -23,7 +23,7 @@ const cleanFlag = "clean"
 var rootCmd = &cobra.Command{
 	Use: "gitcd [git repo]",
 	//Args:    cobra.MaximumNArgs(1),
-	Version: "1.1.0",
+	Version: "1.1.1",
 	Short:   "",
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
@@ -106,10 +106,8 @@ func handleSingleMatch(match string) {
 }
 
 func handleMultipleMatches(matches []string) {
-	var numberOfOptions int64 = 1
-	for range matches {
-		fmt.Printf("%v) %v\n", numberOfOptions, matches[numberOfOptions-1])
-		numberOfOptions++
+	for i, match := range matches {
+		fmt.Printf("%d) %s\n", i+1, match)
 	}
 
 	fmt.Print("Select a project: ")
@@ -121,14 +119,21 @@ func handleMultipleMatches(matches []string) {
 		return
 	}
 
-	convertedChoice, err := strconv.ParseInt(choice, 10, 0)
-
-	if err != nil || convertedChoice > numberOfOptions {
+	index, valid := validateChoice(choice, len(matches))
+	if !valid {
 		fmt.Println("Invalid choice.")
 		return
 	}
 
-	handleSingleMatch(matches[convertedChoice-1])
+	handleSingleMatch(matches[index])
+}
+
+func validateChoice(choice string, numOptions int) (index int, valid bool) {
+	convertedChoice, err := strconv.ParseInt(choice, 10, 64)
+	if err != nil || convertedChoice < 1 || convertedChoice > int64(numOptions) {
+		return 0, false
+	}
+	return int(convertedChoice - 1), true
 }
 
 func generateCdScript(path string) []byte {

@@ -35,6 +35,65 @@ func TestHandleSingleMatch(t *testing.T) {
 
 }
 
+func TestValidateChoice_ValidFirstOption(t *testing.T) {
+	index, valid := validateChoice("1", 5)
+	assert.True(t, valid)
+	assert.Equal(t, 0, index)
+}
+
+func TestValidateChoice_ValidLastOption(t *testing.T) {
+	index, valid := validateChoice("5", 5)
+	assert.True(t, valid)
+	assert.Equal(t, 4, index)
+}
+
+func TestValidateChoice_ValidMiddleOption(t *testing.T) {
+	index, valid := validateChoice("3", 5)
+	assert.True(t, valid)
+	assert.Equal(t, 2, index)
+}
+
+func TestValidateChoice_ZeroInvalid(t *testing.T) {
+	_, valid := validateChoice("0", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_NegativeInvalid(t *testing.T) {
+	_, valid := validateChoice("-1", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_TooHighInvalid(t *testing.T) {
+	_, valid := validateChoice("6", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_NonNumericInvalid(t *testing.T) {
+	_, valid := validateChoice("abc", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_EmptyStringInvalid(t *testing.T) {
+	_, valid := validateChoice("", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_FloatInvalid(t *testing.T) {
+	_, valid := validateChoice("2.5", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_VeryLargeNumberInvalid(t *testing.T) {
+	_, valid := validateChoice("999999999999999999999", 5)
+	assert.False(t, valid)
+}
+
+func TestValidateChoice_SingleOption(t *testing.T) {
+	index, valid := validateChoice("1", 1)
+	assert.True(t, valid)
+	assert.Equal(t, 0, index)
+}
+
 func initTest(t *testing.T) {
 	config.Set(config.Config{
 		GitCdHomePath:    t.TempDir(),
