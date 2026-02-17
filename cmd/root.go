@@ -161,9 +161,11 @@ func handleScanFlag() {
 	s, err := yacspin.New(cfg)
 	if err != nil {
 		fmt.Println("Error creating spinner:", err)
+		os.Exit(1)
 	}
 	if err := s.Start(); err != nil {
 		fmt.Println("Error starting spinner:", err)
+		os.Exit(1)
 	}
 
 	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
