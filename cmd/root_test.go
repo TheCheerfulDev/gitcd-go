@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/thecheerfuldev/gitcd-go/config"
 	"github.com/thecheerfuldev/gitcd-go/repository"
-	"testing"
 )
 
 func TestExtractExpression_regex(t *testing.T) {

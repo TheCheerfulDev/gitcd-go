@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/thecheerfuldev/gitcd-go/cmd"
 	"github.com/thecheerfuldev/gitcd-go/config"
 	"github.com/thecheerfuldev/gitcd-go/repository"
-	"os"
 )
 
 func main() {

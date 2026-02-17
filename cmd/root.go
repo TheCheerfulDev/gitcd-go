@@ -2,15 +2,17 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/thecheerfuldev/gitcd-go/config"
-	"github.com/thecheerfuldev/gitcd-go/repository"
-	"github.com/theckman/yacspin"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
+	"github.com/thecheerfuldev/gitcd-go/config"
+	"github.com/thecheerfuldev/gitcd-go/repository"
+	"github.com/theckman/yacspin"
 )
 
 const resetFlag = "reset"
@@ -76,13 +78,7 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 }
 
 func extractExpression(args []string) string {
-	var expression = args[0]
-
-	for i := 1; i < len(args); i++ {
-		expression += ".*" + args[i]
-	}
-	return expression
-
+	return strings.Join(args, ".*")
 }
 
 func handleSingleMatch(match string) {
