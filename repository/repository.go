@@ -17,13 +17,6 @@ var database = map[string]Project{}
 var isModified = false
 var cfg config.Config
 
-var countSorter = func(c1, c2 *Project) bool {
-	return c1.CallCounter > c2.CallCounter
-}
-var pathSorter = func(c1, c2 *Project) bool {
-	return c1.Path > c2.Path
-}
-
 type Project struct {
 	Path        string
 	CallCounter int
@@ -126,7 +119,11 @@ func GetProject(key string) Project {
 }
 
 func readDatabase() {
-	dbFile, _ := os.Open(cfg.DatabaseFilePath)
+	dbFile, err := os.Open(cfg.DatabaseFilePath)
+	if err != nil {
+		fmt.Println("Error opening database file:", err)
+		return
+	}
 	defer dbFile.Close()
 
 	var lines []string
@@ -135,16 +132,30 @@ func readDatabase() {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading database file:", err)
+		return
+	}
+
 	for _, projectText := range lines {
 
 		if projectText == "" {
-			return
+			continue
 		}
 
 		split := strings.Split(projectText, ";")
-		i, _ := strconv.ParseInt(split[1], 10, 0)
+		if len(split) < 2 {
+			fmt.Println("Warning: skipping malformed database entry:", projectText)
+			continue
+		}
+		i, err := strconv.ParseInt(split[1], 10, 0)
+		if err != nil {
+			fmt.Println("Warning: skipping entry with invalid call count:", projectText)
+			continue
+		}
 		callCount := int(i)
-		if split[1] == "" {
+		if split[0] == "" {
 			continue
 		}
 		addProjectFromDb(split[0], callCount)
@@ -156,14 +167,12 @@ func Init(config config.Config) error {
 	if _, err := os.Stat(cfg.DatabaseFilePath); os.IsNotExist(err) {
 		create, err := os.Create(cfg.DatabaseFilePath)
 		if err != nil {
-			fmt.Println("Something went wrong while creating the gitcd database file: ", err)
-			return err
+			return fmt.Errorf("unable to create gitcd database file: %w", err)
 		}
 
 		err = create.Close()
 		if err != nil {
-			fmt.Println("Something went wrong while creating the gitcd database file: ", err)
-			return err
+			return fmt.Errorf("unable to close gitcd database file: %w", err)
 		}
 	}
 	readDatabase()
@@ -177,14 +186,16 @@ func WriteChangesToDatabase() {
 
 	databaseFile, err := os.OpenFile(cfg.DatabaseFilePath, os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error opening database file for writing:", err)
+		return
 	}
 	defer databaseFile.Close()
 
 	for _, project := range database {
 		_, err := databaseFile.WriteString(project.saveString() + "\n")
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error writing to database file:", err)
+			return
 		}
 	}
 }
