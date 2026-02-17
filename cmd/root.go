@@ -28,14 +28,22 @@ var rootCmd = &cobra.Command{
 	Long: `GitCD is a CLI tool that lets you easily index and navigate to git projects.
 If you don't provide a repo to search for, a top 10 will be displayed.'`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resetFlagUsed, _ := cmd.Flags().GetBool(resetFlag)
+		resetFlagUsed, err := cmd.Flags().GetBool(resetFlag)
+		if err != nil {
+			fmt.Println("Error reading reset flag:", err)
+			os.Exit(1)
+		}
 		if resetFlagUsed {
 			repository.ResetDatabase()
 			handleScanFlag()
 			return
 		}
 
-		scanFlagUsed, _ := cmd.Flags().GetBool(scanFlag)
+		scanFlagUsed, err := cmd.Flags().GetBool(scanFlag)
+		if err != nil {
+			fmt.Println("Error reading scan flag:", err)
+			os.Exit(1)
+		}
 		if scanFlagUsed {
 			handleScanFlag()
 			return
@@ -46,7 +54,11 @@ If you don't provide a repo to search for, a top 10 will be displayed.'`,
 			return
 		}
 
-		cleanFlagUsed, _ := cmd.Flags().GetBool(cleanFlag)
+		cleanFlagUsed, err := cmd.Flags().GetBool(cleanFlag)
+		if err != nil {
+			fmt.Println("Error reading clean flag:", err)
+			os.Exit(1)
+		}
 		if cleanFlagUsed {
 			handleCleanFlag()
 			return
@@ -146,16 +158,29 @@ func handleScanFlag() {
 		StopColors:      []string{"fgGreen"},
 		StopMessage:     " Done!",
 	}
-	s, _ := yacspin.New(cfg)
-	_ = s.Start()
+	s, err := yacspin.New(cfg)
+	if err != nil {
+		fmt.Println("Error creating spinner:", err)
+	}
+	if err := s.Start(); err != nil {
+		fmt.Println("Error starting spinner:", err)
+	}
 
-	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil // Skip directories we can't access
+		}
 		if d.IsDir() && d.Name() == ".git" {
 			repository.AddProject(filepath.Dir(path))
 		}
 		return nil
 	})
-	_ = s.Stop()
+	if err != nil {
+		fmt.Println("Error scanning directories:", err)
+	}
+	if err := s.Stop(); err != nil {
+		fmt.Println("Error stopping spinner:", err)
+	}
 }
 
 func handleCleanFlag() {
