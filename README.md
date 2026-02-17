@@ -6,7 +6,7 @@ GitCD is a CLI tool that lets you easily index and navigate to git projects.
 
 * MacOS or Linux
 * Optional: [homebrew](https://brew.sh/) installed
-* Optional: [Go 1.25.5+](https://golang.org/dl/) installed
+* Optional: [Go 1.26.0+](https://golang.org/dl/) installed
 
 # Installation
 
