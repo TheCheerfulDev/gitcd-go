@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-gitcd-go $*
+gitcd-go "$@"
 
 if [ -f ~/.config/gitcd/change_dir.sh ]; then
   source ~/.config/gitcd/change_dir.sh
